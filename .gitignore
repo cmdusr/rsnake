@@ -1,0 +1,13 @@
+*.swp
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.log
+compile_flags.txt
+compile_commands.json
+.clangd
+.vscode/
+.vs
+build
+.cache
