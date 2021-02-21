@@ -15,11 +15,12 @@ void Windows::GDIRenderer::cleanup()
 void Windows::GDIRenderer::handle_paint_msg(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT paint_struct;
-	BeginPaint(hWnd, &paint_struct);
+	hDC = BeginPaint(hWnd, &paint_struct);
 
-	// Do Stuff here
+	// TODO
 
 	EndPaint(hWnd, &paint_struct);
+	hDC = 0;
 }
 
 void Windows::GDIRenderer::draw_quad(const Quad& quad, const Colour& colour)

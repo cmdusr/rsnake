@@ -66,6 +66,8 @@ LRESULT CALLBACK Windows::Window::main_window_proc(HWND hWnd, UINT uMsg, WPARAM 
 	return window->main_window_proc_imp(hWnd, uMsg, wParam, lParam);
 }
 
+#include "win_renderer_gdi.hpp"
+
 LRESULT Windows::Window::main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)

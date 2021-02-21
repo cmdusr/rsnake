@@ -25,9 +25,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	window.init();
 	gdi_renderer.init();
 
+	HWND hWnd = window.get_current_window();
+
 	// Main Loop
 	for(;;)
 	{
+		gdi_renderer.begin_rendering(hWnd);
+		gdi_renderer.draw_quad({0, 0, 800, 600}, {});
+		gdi_renderer.draw_quad({0, 0, 300, 200}, {255, 0, 0, 0});
+		gdi_renderer.end_rendering(hWnd);
+
 		window.pump_message_queue();
+		Sleep(10);
 	}
 }
