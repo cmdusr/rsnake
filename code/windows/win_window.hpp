@@ -11,6 +11,7 @@ namespace Windows
 		Window(Internal&);
 		void init();
 		void pump_message_queue();
+		HWND get_current_window() const;
 	private:
 		static constexpr const char* main_window_class_name = "main_window_class";
 

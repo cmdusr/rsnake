@@ -71,7 +71,7 @@ LRESULT Windows::Window::main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wPara
 	switch(uMsg)
 	{
 		default: break;
-		
+
 		case WM_CLOSE:
 		{
 			System& sys = *internal->system;
@@ -81,4 +81,9 @@ LRESULT Windows::Window::main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wPara
 		break;
 	}
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+}
+
+HWND Windows::Window::get_current_window() const
+{
+	return current_window;
 }
