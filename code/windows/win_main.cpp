@@ -1,5 +1,9 @@
 #include <windows.h>
+
+#include "../core/main.hpp"
+
 #include "win_internal.hpp"
+#include "win_platform.hpp"
 #include "win_window.hpp"
 #include "win_system.hpp"
 #include "win_renderer_gdi.hpp"
@@ -8,11 +12,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 {
 	// Windows stuff
 	static Windows::Internal internal{};
-
+	
 	// Modules
+	static Windows::Platform    platform{internal};
 	static Windows::System      system{internal};
 	static Windows::Window      window{internal};
 	static Windows::GDIRenderer gdi_renderer{internal};
+
+	// Core module
+	static Core::Main core{platform};
 
 	// Initialise internal
 	internal.hInstance    = hInstance;
@@ -25,6 +33,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	window.init();
 	gdi_renderer.init();
 
+	// Initialise core module
+	core.init();
+
 	HWND hWnd = window.get_current_window();
 
 	// Main Loop
@@ -36,6 +47,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		gdi_renderer.end_rendering(hWnd);
 
 		window.pump_message_queue();
+
+		core.update();
+
 		Sleep(10);
 	}
 }

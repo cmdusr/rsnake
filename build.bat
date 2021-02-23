@@ -1,11 +1,14 @@
 @echo off
 
 set CC=cl.exe
-set CCFLAGS=/D_HAS_EXCEPTIONS=0 /nologo /I..\code
+set CCFLAGS=/D_HAS_EXCEPTIONS=0 /nologo /I..\code /Zi
 set LDFLAGS=-incremental:no user32.lib shell32.lib gdi32.lib
 
 set Target=rgame
 set TargetPath=..\code\unity\windows_unity.cpp
+
+set Game=game
+set GamePath=..\code\unity\rsnake_unity.cpp
 
 rem Search for CC
 for %%X in (%CC%) do (set FOUND=%%~$PATH:X)
@@ -30,10 +33,17 @@ if NOT EXIST build (
 
 pushd build
 
-%CC% %CCFLAGS% /Fe%Target%.exe /Zi /Fd%Target%.pdb %TargetPath% /link %LDFLAGS%
+%CC% %CCFLAGS% /Fe%Game%   %GamePath%   /LD /link %LDFLAGS% /PDB:%Game%_%random%.pdb /Export:get_game_api
+%CC% %CCFLAGS% /Fe%Target% %TargetPath%     /link %LDFLAGS% user32.lib shell32.lib gdi32.lib
 
-move /y *.exe ..\bin
 move /y *.pdb ..\bin
+move /y *.exe ..\bin
+
+if EXIST ..\bin\%game%.dll (
+	 move /y %game%.dll ..\bin\%game%_temp.dll
+) else (
+	move /y %game%.dll ..\bin
+)
 
 popd
 
