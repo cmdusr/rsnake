@@ -26,34 +26,31 @@ void Windows::Platform::setup_console()
 
 bool Windows::Platform::should_reload_gamelib(const GameLib& lib)
 {
-	char lib_path[MAX_PATH]{};
-	GetModuleFileName(lib.handle, lib_path, sizeof(lib_path));
-
-    WIN32_FILE_ATTRIBUTE_DATA attributes;
-	GetFileAttributesExA(lib_path, GetFileExInfoStandard, &attributes);
-	return CompareFileTime(&attributes.ftLastWriteTime, &lib.last_write_time) != 0;
+	return check_file_exists(lib.alt_path);
 }
 
-I_Game* Windows::Platform::load_gamelib(const char* name, GameLib& lib)
+bool Windows::Platform::check_file_exists(const char* path)
 {
-	char lib_path[MAX_PATH]{};
-	strcpy_s(lib_path, name);
-	strcat_s(lib_path, lib_extension);
-	return load_gamelib_fullpath(lib_path, lib);
+	// Exists and is not a directory
+	DWORD attrib = GetFileAttributes(path);
+	return (attrib != INVALID_FILE_ATTRIBUTES) && !(attrib & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-I_Game* Windows::Platform::load_gamelib_fullpath(const char* lib_path, GameLib& lib)
+// Assume .path fields are valid
+I_Game* Windows::Platform::load_gamelib_validpaths(GameLib& lib)
 {
-    WIN32_FILE_ATTRIBUTE_DATA attributes;
-	if(GetFileAttributesEx(lib_path, GetFileExInfoStandard, &attributes) == INVALID_FILE_ATTRIBUTES)
+	if(check_file_exists(lib.alt_path))
 	{
-		// File not found
+		CopyFile(lib.alt_path, lib.path, false);
+		DeleteFile(lib.alt_path);
+	}
+
+	if(!check_file_exists(lib.path))
+	{
 		return nullptr;
 	}
 
-	lib.last_write_time = attributes.ftLastWriteTime;
-
-	lib.handle = LoadLibrary(lib_path);
+	lib.handle = LoadLibrary(lib.path);
 	if(!lib.handle)
 	{
 		return nullptr;
@@ -67,6 +64,20 @@ I_Game* Windows::Platform::load_gamelib_fullpath(const char* lib_path, GameLib& 
 	return get_api(internal.core);
 }
 
+I_Game* Windows::Platform::load_gamelib(const char* name, GameLib& lib)
+{
+	// Setup paths
+	memset(lib.path, 0, sizeof(lib.path));
+	strcpy_s(lib.path, name);
+	strcat_s(lib.path, ".dll");
+
+	memset(lib.alt_path, 0, sizeof(lib.alt_path));
+	strcpy_s(lib.alt_path, name);
+	strcat_s(lib.alt_path, "_temp.dll");
+
+	return load_gamelib_validpaths(lib);
+}
+
 void Windows::Platform::unload_gamelib(GameLib& lib)
 {
 	FreeLibrary(lib.handle);
@@ -74,11 +85,8 @@ void Windows::Platform::unload_gamelib(GameLib& lib)
 
 I_Game* Windows::Platform::reload_gamelib(GameLib& lib)
 {
-	char lib_path[MAX_PATH]{};
-	GetModuleFileName(lib.handle, lib_path, sizeof(lib_path));
-
 	unload_gamelib(lib);
-	return load_gamelib_fullpath(lib_path, lib);
+	return load_gamelib_validpaths(lib);
 }
 
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
@@ -87,7 +95,7 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 	internal.platform  = this;
 	internal.core      = &core;
 
-	setup_console();
+//	setup_console();
 
 	core.init();
 

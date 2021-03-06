@@ -1,1 +1,2 @@
-#include "core/main.cpp"
+#include "core/core.cpp"
+#include "modules/core.cpp"

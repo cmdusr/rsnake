@@ -1,8 +1,16 @@
 @echo off
 
+goto SKIP_DEF
+
+:IS_FILE_LOCKED
+echo %1
+2>nul (>>%1 (call )) && (EXIT /B 0) || (EXIT /B 1)
+
+:SKIP_DEF
+
 set CC=cl.exe
 set CCFLAGS=/D_HAS_EXCEPTIONS=0 /nologo /I..\code /Zi
-set LDFLAGS=-incremental:no user32.lib shell32.lib gdi32.lib
+set LDFLAGS=-incremental:no
 
 set Target=rgame
 set TargetPath=..\code\unity\windows_unity.cpp
@@ -31,18 +39,29 @@ if NOT EXIST build (
 	mkdir build
 )
 
+call :IS_FILE_LOCKED bin/%Target%.exe
+set core_locked=%ERRORLEVEL%
+
+call :IS_FILE_LOCKED bin/%Game%.dll
+set game_locked=%ERRORLEVEL%
+
 pushd build
 
-rem %CC% %CCFLAGS% /Fe%Game%   %GamePath%   /LD /link %LDFLAGS% /PDB:%Game%_%random%.pdb /Export:get_game_api
-%CC% %CCFLAGS% /Fe%Target% %TargetPath%     /link %LDFLAGS% user32.lib shell32.lib gdi32.lib
+if %core_locked% EQU 0 (
+	%CC% %CCFLAGS% /Fe%Target% %TargetPath% /link %LDFLAGS% user32.lib shell32.lib gdi32.lib
+	move /y %Target%.exe ..\bin
+	move /y %Target%.pdb ..\bin
+)
 
-move /y *.pdb ..\bin
-move /y *.exe ..\bin
+rem Always build game
+set Game_pdb=%Game%_%random%.pdb
+%CC% %CCFLAGS% /Fe%Game% %GamePath% /LD /link %LDFLAGS% /PDB:%Game_pdb% /Export:get_game_api
+move /y %Game_pdb% ..\bin
 
-if EXIST ..\bin\%game%.dll (
-	 move /y %game%.dll ..\bin\%game%_temp.dll
-) else (
+if %game_locked% EQU 0 (
 	move /y %game%.dll ..\bin
+) else (
+	move /y %game%.dll ..\bin\%game%_temp.dll
 )
 
 popd

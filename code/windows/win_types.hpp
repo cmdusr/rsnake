@@ -8,9 +8,10 @@ namespace Windows
 {
 	struct GameLib
 	{
-		HMODULE  handle;
-		I_Game*  api;
-		FILETIME last_write_time;
+		HMODULE handle;
+		I_Game* api;
+		char    path[MAX_PATH];
+		char    alt_path[MAX_PATH];
 	};
 }
 // namespace Windows
