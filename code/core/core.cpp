@@ -9,10 +9,7 @@ Core::Core(I_Platform* in_platform) :
 void Core::init()
 {
 	game = platform->load_gamelib(gamelib_name, gamelib);
-	if(game)
-	{
-		game->init();
-	}
+	game->init();
 }
 
 void Core::cleanup()
@@ -22,21 +19,13 @@ void Core::cleanup()
 
 void Core::update()
 {
-	if(!game)
-	{
-		game = platform->load_gamelib(gamelib_name, gamelib);
-		game->init();
-	}
 	if(platform->should_reload_gamelib(gamelib))
 	{
 		game = platform->reload_gamelib(gamelib);
 		game->init();
 	}
 
-	if(game)
-	{
-		game->update();
-	}
+	game->update();
 }
 
 void Core::quit()
