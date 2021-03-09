@@ -13,13 +13,18 @@ namespace Windows
 
 		HINSTANCE hInstance;
 
+		// Window
+		HWND  hWnd;
+		DWORD event_time;
+
 		// Game
 		HMODULE gamelib;
 		I_Game* game;
 
+		// Interfaces
 		class I_Platform* platform;
 
-		// Modules
+		// Submodules
 		class Window* window;
 	};
 

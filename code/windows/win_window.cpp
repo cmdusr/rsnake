@@ -18,7 +18,11 @@ void Windows::Window::init()
 	wc.hInstance     = hInstance;
 
 	HRESULT result = RegisterClassA(&wc);
-//	RCOM_ASSERT(result, "Failed to register window class");
+
+	if(FAILED(result))
+	{
+		internal->platform->error("Failed to register window class: %s", main_window_class_name);
+	}
 
 	// Create main window
 	static const char* title  = "rgame";
@@ -26,7 +30,7 @@ void Windows::Window::init()
 	static const int   height = 600;
 	static const DWORD style  = WS_SYSMENU|WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE|WS_THICKFRAME;
 
-	current_window = CreateWindowExA(
+	HWND current_window = CreateWindowExA(
 		0,
 		main_window_class_name,
 		title,
@@ -41,6 +45,8 @@ void Windows::Window::init()
 
 	SetWindowLongPtrA(current_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 	static_assert(sizeof(LONG_PTR) >= sizeof(void*), "Bad cast to LONG_PTR");
+
+	internal->hWnd = current_window;
 }
 
 void Windows::Window::pump_message_queue()
@@ -50,13 +56,15 @@ void Windows::Window::pump_message_queue()
 	{
 		if(!GetMessageA(&msg, 0, 0, 0))
 		{
-			exit(EXIT_SUCCESS);
+			internal->platform->quit();
 		}
 
-		event_time = msg.time;
+		DWORD event_time = msg.time;
 
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
+
+		internal->event_time = event_time;
 	}
 }
 
@@ -79,9 +87,4 @@ LRESULT Windows::Window::main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wPara
 		break;
 	}
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
-}
-
-HWND Windows::Window::get_current_window() const
-{
-	return current_window;
 }

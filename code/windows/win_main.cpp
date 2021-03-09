@@ -15,7 +15,6 @@ void Windows::Platform::quit()
 	std::quick_exit(EXIT_SUCCESS);
 }
 
-
 void Windows::Platform::error(const char* fmt, ...)
 {
 	va_list argp;
@@ -101,8 +100,6 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 	internal.hInstance = hInstance;
 	internal.platform  = this;
 	internal.window    = &window;
-	internal.gamelib   = nullptr;
-	internal.game      = nullptr;
 
 	window.init();
 
