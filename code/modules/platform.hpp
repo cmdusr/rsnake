@@ -10,4 +10,5 @@ class I_Platform
 {
 public:
 	PLATFORM_API void quit();
+	PLATFORM_API void error(const char* fmt, ...);
 };

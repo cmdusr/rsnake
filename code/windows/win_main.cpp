@@ -15,6 +15,17 @@ void Windows::Platform::quit()
 	std::quick_exit(EXIT_SUCCESS);
 }
 
+
+void Windows::Platform::error(const char* fmt, ...)
+{
+	va_list argp;
+	va_start(argp, fmt);
+	vfprintf(stderr, fmt, argp);
+	va_end(argp);
+	fputc('\n', stderr);
+	abort();
+}
+
 void Windows::Platform::setup_console()
 {
 	FILE* temp;
@@ -38,22 +49,19 @@ void Windows::Platform::load_gamelib()
 
 	if(!check_file_exists(path))
 	{
-		// error
-		return;
+		error("Could not find gamelib.");
 	}
 
 	HMODULE handle = LoadLibrary(path);
 	if(!handle)
 	{
-		// error
-		return;
+		error("Failed to load gamelib");
 	}
 
 	auto get_api = (GetGameApiFunction)GetProcAddress(handle, game_api_function_name);
 	if(!get_api)
 	{
-		// error
-		return;
+		error("Failed to find gamelib api function");
 	}
 
 	GameImport game_import{};
@@ -62,28 +70,22 @@ void Windows::Platform::load_gamelib()
 	I_Game* game = get_api(game_import);
 	if(!game)
 	{
-		// Error
-		return;
+		error("Failed to get gamelib api");
 	}
 
 	internal.gamelib = handle;
 	internal.game    = game;
 }
 
-bool Windows::Platform::should_reload_gamelib()
-{
-	return check_file_exists(internal.temp_gamelib_path);
-}
-
-void Windows::Platform::reload_gamelib()
+void Windows::Platform::refresh_gamelib()
 {
 	const char* path      = internal.gamelib_path;
 	const char* temp_path = internal.temp_gamelib_path;
 	HMODULE     gamelib   = internal.gamelib;
 
+	// Should we reload gamelib?
 	if(!check_file_exists(temp_path))
 	{
-		// Error
 		return;
 	}
 
@@ -91,6 +93,7 @@ void Windows::Platform::reload_gamelib()
 	CopyFile(temp_path, path, false);
 	DeleteFile(temp_path);
 	load_gamelib();
+	internal.game->init();
 }
 
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
@@ -111,11 +114,7 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 	{
 		window.pump_message_queue();
 
-		if(should_reload_gamelib())
-		{
-			reload_gamelib();
-			internal.game->init();
-		}
+		refresh_gamelib();
 		internal.game->update();
 	}
 
