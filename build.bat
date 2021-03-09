@@ -31,11 +31,11 @@ if not exist code (
 	goto END
 )
 
-if NOT EXIST bin (
+if not exist bin (
 	mkdir bin
 )
 
-if NOT EXIST build (
+if not exist build (
 	mkdir build
 )
 
@@ -49,11 +49,16 @@ pushd build
 
 if %core_locked% EQU 0 (
 	%CC% %CCFLAGS% /Fe%Target% %TargetPath% /link %LDFLAGS% user32.lib shell32.lib gdi32.lib
-	move /y %Target%.exe ..\bin
-	move /y %Target%.pdb ..\bin
+
+	if exist %Target%.exe (
+		move %Target%.exe ..\bin
+	)
+
+	if exist %Target%.pdb (
+		move %Target%.pdb ..\bin
+	)
 )
 
-rem Always build game
 set Game_pdb=%Game%_%random%.pdb
 %CC% %CCFLAGS% /Fe%Game% %GamePath% /LD /link %LDFLAGS% /PDB:%Game_pdb% /Export:get_game_api
 move /y %Game_pdb% ..\bin

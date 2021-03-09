@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../core/core.hpp"
 #include "../modules/platform.hpp"
 #include "win_internal.hpp"
 #include "win_window.hpp"
@@ -15,18 +14,17 @@ namespace Windows
 
 		int main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow);
 
-		PLATFORM_API void    quit();
-		PLATFORM_API I_Game* load_gamelib(const char* name, GameLib&);
-		PLATFORM_API void    unload_gamelib(GameLib&);
-		PLATFORM_API I_Game* reload_gamelib(GameLib&);
-		PLATFORM_API bool    should_reload_gamelib(const GameLib&);
+		PLATFORM_API void quit();
 	private:
-		Core       core;
-		Internal   internal;
-		Window     window;
+		Internal internal;
+		Window   window;
+
+		void load_gamelib();
+		void reload_gamelib();
+		bool should_reload_gamelib();
+
 		static void setup_console();
 		static bool check_file_exists(const char* path);
-		I_Game*     load_gamelib_validpaths(GameLib&);
 	};
 }
 // namespace Windows

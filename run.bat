@@ -1,3 +1,7 @@
 @echo off
 
-bin\rgame.exe
+pushd bin
+
+rgame.exe
+
+popd

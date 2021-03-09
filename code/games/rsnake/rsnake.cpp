@@ -1,24 +1,22 @@
 #include "rsnake.hpp"
-#include "../../modules/core.hpp"
 
-I_Game* get_game_api(I_Core* core)
+I_Game* get_game_api(GameImport game_import)
 {
-	static RSnake api{};
-	api.set_core(core);
-	return &api;
+	static RSnake game{game_import};
+	return &game;
+}
+
+RSnake::RSnake(GameImport game_import) :
+	platform{game_import.platform}
+{
 }
 
 void RSnake::init()
 {
-
+	// Do something
 }
 
 void RSnake::update()
 {
-	
-}
-
-void RSnake::set_core(I_Core* core)
-{
-	internal.core = core;
+	// Do something
 }

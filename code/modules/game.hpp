@@ -8,10 +8,15 @@
 	#define GAME_API
 #endif
 
-class I_Core;
+class I_Platform;
 class I_Game;
 
-typedef I_Game* (*GetGameApiFunction)(I_Core*);
+struct GameImport
+{
+	I_Platform* platform;
+};
+
+typedef I_Game* (*GetGameApiFunction)(GameImport);
 static const char* game_api_function_name = "get_game_api";
 
 class I_Game

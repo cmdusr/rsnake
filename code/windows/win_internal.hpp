@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../modules/game.hpp"
 #include <windows.h>
 
 namespace Windows
@@ -7,10 +8,16 @@ namespace Windows
 	class Internal
 	{
 	public:
+		constexpr static const char* gamelib_path      = "game.dll";
+		constexpr static const char* temp_gamelib_path = "game_temp.dll";
+
 		HINSTANCE hInstance;
 
+		// Game
+		HMODULE gamelib;
+		I_Game* game;
+
 		class I_Platform* platform;
-		class I_Core*     core;
 
 		// Modules
 		class Window* window;

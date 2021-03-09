@@ -1,10 +1,10 @@
 #include "win_main.hpp"
+#include "../modules/game.hpp"
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
 
 Windows::Platform::Platform() : I_Platform{},
-	core{this},
 	internal{},
 	window{internal}
 {
@@ -31,73 +31,92 @@ bool Windows::Platform::check_file_exists(const char* path)
 	return (attrib != INVALID_FILE_ATTRIBUTES) && !(attrib & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-I_Game* Windows::Platform::load_gamelib(const char* name, GameLib& lib)
-{
-	// Setup paths
-	memset(lib.path, 0, sizeof(lib.path));
-	strcpy_s(lib.path, name);
-	strcat_s(lib.path, ".dll");
-
-	memset(lib.alt_path, 0, sizeof(lib.alt_path));
-	strcpy_s(lib.alt_path, name);
-	strcat_s(lib.alt_path, "_temp.dll");
-
-	return load_gamelib_validpaths(lib);
-}
-
 // GameLib path fields must be valid
-I_Game* Windows::Platform::load_gamelib_validpaths(GameLib& lib)
+void Windows::Platform::load_gamelib()
 {
-	if(!check_file_exists(lib.path))
+	const char* path = internal.gamelib_path;
+
+	if(!check_file_exists(path))
 	{
-		return nullptr;
+		// error
+		return;
 	}
 
-	lib.handle = LoadLibrary(lib.path);
-	if(!lib.handle)
+	HMODULE handle = LoadLibrary(path);
+	if(!handle)
 	{
-		return nullptr;
+		// error
+		return;
 	}
 
-	auto get_api = (GetGameApiFunction)GetProcAddress(lib.handle, game_api_function_name);
+	auto get_api = (GetGameApiFunction)GetProcAddress(handle, game_api_function_name);
 	if(!get_api)
 	{
-		return nullptr;
+		// error
+		return;
 	}
-	return get_api(internal.core);
+
+	GameImport game_import{};
+	game_import.platform = this;
+
+	I_Game* game = get_api(game_import);
+	if(!game)
+	{
+		// Error
+		return;
+	}
+
+	internal.gamelib = handle;
+	internal.game    = game;
 }
 
-bool Windows::Platform::should_reload_gamelib(const GameLib& lib)
+bool Windows::Platform::should_reload_gamelib()
 {
-	return check_file_exists(lib.alt_path);
+	return check_file_exists(internal.temp_gamelib_path);
 }
 
-I_Game* Windows::Platform::reload_gamelib(GameLib& lib)
+void Windows::Platform::reload_gamelib()
 {
-	FreeLibrary(lib.handle);
-	CopyFile(lib.alt_path, lib.path, false);
-	DeleteFile(lib.alt_path);
-	return load_gamelib_validpaths(lib);
-}
+	const char* path      = internal.gamelib_path;
+	const char* temp_path = internal.temp_gamelib_path;
+	HMODULE     gamelib   = internal.gamelib;
 
-void Windows::Platform::unload_gamelib(GameLib& lib)
-{
-	FreeLibrary(lib.handle);
+	if(!check_file_exists(temp_path))
+	{
+		// Error
+		return;
+	}
+
+	FreeLibrary(gamelib);
+	CopyFile(temp_path, path, false);
+	DeleteFile(temp_path);
+	load_gamelib();
 }
 
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	internal.hInstance = hInstance;
 	internal.platform  = this;
-	internal.core      = &core;
+	internal.window    = &window;
+	internal.gamelib   = nullptr;
+	internal.game      = nullptr;
 
-//	setup_console();
+	window.init();
 
-	core.init();
+	// Setup GameLib
+	load_gamelib();
+	internal.game->init();
 
 	for(;;)
 	{
-		core.update();
+		window.pump_message_queue();
+
+		if(should_reload_gamelib())
+		{
+			reload_gamelib();
+			internal.game->init();
+		}
+		internal.game->update();
 	}
 
 	// Never reach here
