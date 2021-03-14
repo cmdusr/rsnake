@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../common/data.hpp"
+
 #if defined(DLL_PLATFORM)
 	#define PLATFORM_API
 #else
@@ -11,4 +13,5 @@ class I_Platform
 public:
 	PLATFORM_API void quit();
 	PLATFORM_API void error(const char* fmt, ...);
+	PLATFORM_API void draw_quad(Quad, Colour);
 };

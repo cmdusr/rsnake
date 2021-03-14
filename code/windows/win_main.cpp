@@ -95,6 +95,73 @@ void Windows::Platform::refresh_gamelib()
 	internal.game->init();
 }
 
+void Windows::Platform::begin_rendering()
+{
+	// Make all draw commands to hdc
+	// Copy to real_hdc at end of drawing
+
+	HWND hWnd   = internal.hWnd;
+	HDC old_hdc = GetDC(hWnd);
+	HDC hDC     = CreateCompatibleDC(internal.old_hdc);
+
+	RECT rect;
+	GetWindowRect(hWnd, &rect);
+	int width  = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+
+	HBITMAP bitmap     = CreateCompatibleBitmap(old_hdc, width, height);
+	HBITMAP old_bitmap = (HBITMAP)SelectObject(hDC, bitmap);
+
+	internal.old_hdc    = old_hdc;
+	internal.hDC        = hDC;
+	internal.width      = width;
+	internal.height     = height;
+	internal.bitmap     = bitmap;
+	internal.old_bitmap = old_bitmap;
+}
+
+void Windows::Platform::end_rendering()
+{
+	HWND hWnd          = internal.hWnd;
+	HDC hDC            = internal.hDC;
+	HDC old_hdc        = internal.old_hdc;
+	int width          = internal.width;
+	int height         = internal.height;
+	HBITMAP bitmap     = internal.bitmap;
+	HBITMAP old_bitmap = internal.old_bitmap;
+
+	BitBlt(old_hdc, 0, 0, width, height, hDC, 0, 0, SRCCOPY);
+	SelectObject(old_hdc, hDC);
+	SelectObject(old_hdc, old_bitmap);
+
+	DeleteObject(bitmap);
+	DeleteDC(hDC);
+	ReleaseDC(hWnd, old_hdc);
+}
+
+void Windows::Platform::draw_quad(Quad quad, Colour colour)
+{
+	// Convert to rect
+	RECT rect;
+	rect.left   = quad.position.x;
+	rect.bottom = quad.position.y;
+	rect.right  = quad.position.x + quad.size.x;
+	rect.top    = quad.position.y + quad.size.y;
+
+	// Set colour brush
+	HBRUSH hBrush = CreateSolidBrush(RGB(colour.r, colour.g, colour.b));
+	auto temp = SelectObject(internal.hDC, hBrush);
+
+	// Draw rectangle
+	Rectangle(internal.hDC, rect.left, rect.top, rect.right, rect.bottom);
+
+	// Restore
+	SelectObject(internal.hDC, temp);
+
+	// Cleanup
+	DeleteObject(hBrush);
+}
+
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	internal.hInstance = hInstance;
@@ -110,9 +177,10 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 	for(;;)
 	{
 		window.pump_message_queue();
-
 		refresh_gamelib();
+		begin_rendering();
 		internal.game->update();
+		end_rendering();
 	}
 
 	// Never reach here

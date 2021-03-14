@@ -11,7 +11,7 @@ void I_Game::update()
 	return static_cast<RSnake*>(this)->update();
 }
 
-void I_Game::inform(rcom::ArrayPtr<InputEvent> events)
+void I_Game::inform(InputEvent event)
 {
-	return static_cast<RSnake*>(this)->inform(events);
+	return static_cast<RSnake*>(this)->inform(event);
 }

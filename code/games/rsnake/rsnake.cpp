@@ -1,5 +1,6 @@
 #include "rsnake.hpp"
 #include "../../rcom/array_helpers.hpp"
+#include "../../modules/platform.hpp"
 
 I_Game* get_game_api(GameImport game_import)
 {
@@ -20,8 +21,11 @@ void RSnake::init()
 
 void RSnake::update()
 {
-	rcom::zero(input_events.to_bytes());
-	num_events = 0;
+	Quad quad;
+	quad.position = {};
+	quad.size = {100.0f, 100.0f};
+	Colour colour{255, 255, 255, 255};
+	platform->draw_quad(quad, colour);
 }
 
 void RSnake::inform(InputEvent event)

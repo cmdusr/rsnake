@@ -17,3 +17,9 @@ void I_Platform::error(const char* fmt, ...)
 	va_start(argp, fmt);
 	return static_cast<Platform*>(this)->error(fmt, argp);
 }
+
+
+void I_Platform::draw_quad(Quad quad, Colour colour)
+{
+	return static_cast<Platform*>(this)->draw_quad(quad, colour);
+}

@@ -16,6 +16,7 @@ namespace Windows
 
 		PLATFORM_API void quit();
 		PLATFORM_API void error(const char* fmt, ...);
+		PLATFORM_API void draw_quad(Quad, Colour);
 	private:
 		Internal internal;
 		Window   window;
@@ -23,6 +24,9 @@ namespace Windows
 		void load_gamelib();
 		void reload_gamelib();
 		void refresh_gamelib();
+
+		void begin_rendering();
+		void end_rendering();
 
 		static void setup_console();
 		static bool check_file_exists(const char* path);

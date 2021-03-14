@@ -22,6 +22,14 @@ namespace Windows
 		HMODULE gamelib;
 		I_Game* game;
 
+		// Rendering
+		HDC     hDC;
+		HDC     old_hdc;
+		int     width;
+		int     height;
+		HBITMAP bitmap;
+		HBITMAP old_bitmap;
+
 		// Interfaces
 		class I_Platform* platform;
 
