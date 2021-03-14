@@ -1,6 +1,6 @@
 #include "rsnake.hpp"
-#include "../../rcom/array_helpers.hpp"
 #include "../../modules/platform.hpp"
+#include <cstring>
 
 I_Game* get_game_api(GameImport game_import)
 {
@@ -40,7 +40,8 @@ void RSnake::update_input()
 			case InputEvent::ID::Right: heading = Heading::Right; break;
 		}
 	}
-	rcom::zero(input_events.to_bytes());
+
+	memset(input_events, 0, byte_size(input_events));
 	num_events = 0;
 }
 
@@ -61,17 +62,17 @@ void RSnake::update_gameplay()
 	// Handle edges
 	if(new_head.x < 0)
 	{
-		new_head.x = tilemap.size() - 1;
+		new_head.x = array_size_1(tilemap) - 1;
 	}
-	else if(new_head.x >= tilemap.size())
+	else if(new_head.x >= array_size_1(tilemap))
 	{
 		new_head.x = 0;
 	}
 	if(new_head.y < 0)
 	{
-		new_head.y = tilemap[0].size() - 1;
+		new_head.y = array_size_2(tilemap) - 1;
 	}
-	else if(new_head.y >= tilemap[0].size())
+	else if(new_head.y >= array_size_2(tilemap))
 	{
 		new_head.y = 0;
 	}
@@ -80,34 +81,42 @@ void RSnake::update_gameplay()
 	{
 		case Tile::Empty:
 		{
-			Position pos          = new_head;
-			tilemap[pos.x][pos.y] = Tile::Snake;
-			head                  = (head + 1) % body.size();
-			body[head]            = new_head;
+			// Advance head in the queue
+			head       = (head + 1) % array_size(body);
+			body[head] = new_head;
 
-			pos                   = body[tail];
-			tilemap[pos.x][pos.y] = Tile::Empty;
-			tail                  = (tail + 1) % body.size();
+			// New head tile is part of the snake
+			tilemap[new_head.x][new_head.y] = Tile::Snake;
+
+			// Tail tile is no longer part of the snake
+			Position tail_pos               = body[tail];
+			tilemap[tail_pos.x][tail_pos.y] = Tile::Empty;
+
+			// Advance tail in the queue
+			tail = (tail + 1) % array_size(body);
 		}
 		break;
 
 		case Tile::Food:
 		{
-			Position pos          = new_head;
-			tilemap[pos.x][pos.y] = Tile::Snake;
-			head                  = (head + 1) % body.size();
-			body[head]            = new_head;
+			// Advance head in the queue
+			head       = (head + 1) % array_size(body);
+			body[head] = new_head;
+
+			// New head tile is part of the snake
+			tilemap[new_head.x][new_head.y] = Tile::Snake;
+
+			// Don't remove / advance tail -> Grows snake by 1
 		}
 		break;
 
 		case Tile::Snake:
 		{
+			// TODO: Handle death
 			return;
 		}
 		break;
 	}
-
-	// Update tilemap
 }
 
 void RSnake::update_screen()
@@ -115,9 +124,9 @@ void RSnake::update_screen()
 	Quad   quad{};
 	Colour colour{};
 
-	for(size_t i = 0; i < tilemap.size(); ++i)
+	for(size_t i = 0; i < array_size_1(tilemap); ++i)
 	{
-		for(size_t j = 0; j < tilemap[0].size(); ++j)
+		for(size_t j = 0; j < array_size_2(tilemap); ++j)
 		{
 			quad.position = {i * tile_size.x, j * tile_size.y};
 			quad.size     = tile_size;
