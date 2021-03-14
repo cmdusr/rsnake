@@ -85,6 +85,75 @@ LRESULT Windows::Window::main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wPara
 			internal->platform->quit();
 		}
 		break;
+
+		case WM_KEYDOWN:
+		{
+			handle_key_event(hWnd, uMsg, wParam, lParam);
+		}
+		break;
 	}
 	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+}
+
+void Windows::Window::handle_key_event(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto add_event = [this](const InputEvent& event)
+	{
+		internal->input_queue[internal->queue_count++] = event;
+	};
+
+	switch(wParam)
+	{
+		default:
+		{
+			// Do nothing
+		}
+		break;
+
+		case VK_ESCAPE:
+		{
+			internal->platform->quit();
+		}
+		break;
+
+		case 'W':
+		case VK_UP:
+		{
+			InputEvent event;
+			event.id    = InputEvent::ID::Up;
+			event.value = 1.0f;
+			add_event(event);
+		}
+		break;
+
+		case 'S':
+		case VK_DOWN:
+		{
+			InputEvent event;
+			event.id    = InputEvent::ID::Down;
+			event.value = 1.0f;
+			add_event(event);
+		};
+		break;
+
+		case 'A':
+		case VK_LEFT:
+		{
+			InputEvent event;
+			event.id    = InputEvent::ID::Left;
+			event.value = 1.0f;
+			add_event(event);
+		};
+		break;
+
+		case 'D':
+		case VK_RIGHT:
+		{
+			InputEvent event;
+			event.id    = InputEvent::ID::Right;
+			event.value = 1.0f;
+			add_event(event);
+		};
+		break;
+	}
 }

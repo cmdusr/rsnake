@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../rcom/array_ptr.hpp"
+#include "../common/input.hpp"
+
 #define DLL_GAME
 
 #if defined(DLL_GAME)
@@ -24,4 +27,5 @@ class I_Game
 public:
 	GAME_API void init();
 	GAME_API void update();
+	GAME_API void inform(rcom::ArrayPtr<InputEvent>);
 };

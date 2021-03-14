@@ -112,6 +112,7 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 		window.pump_message_queue();
 
 		refresh_gamelib();
+		internal.game->inform(internal.input_queue.to_ptr());
 		internal.game->update();
 	}
 

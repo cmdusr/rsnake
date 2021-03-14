@@ -16,6 +16,8 @@ namespace Windows
 
 		static LRESULT CALLBACK main_window_proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		LRESULT main_window_proc_imp(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		void handle_key_event(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	};
 }
 // namespace Windows

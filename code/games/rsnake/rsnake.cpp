@@ -1,4 +1,5 @@
 #include "rsnake.hpp"
+#include "../../rcom/array_helpers.hpp"
 
 I_Game* get_game_api(GameImport game_import)
 {
@@ -18,5 +19,12 @@ void RSnake::init()
 
 void RSnake::update()
 {
-	// Do something
+	rcom::zero(input_events.to_bytes());
+	num_events = 0;
+}
+
+void RSnake::inform(rcom::ArrayPtr<InputEvent> events)
+{
+	rcom::copy(input_events.to_bytes(), events.to_bytes());
+	num_events = events.size();
 }
