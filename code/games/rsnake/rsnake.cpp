@@ -21,8 +21,83 @@ void RSnake::init()
 
 void RSnake::update()
 {
+	for(int i = 0; i < num_events; ++i)
+	{
+		switch(input_events[i].id)
+		{
+			default:
+			{
+				// Do nothing
+			}
+			break;
+
+			case InputEvent::ID::Up:
+			{
+				direction = 0;
+			}
+			break;
+
+			case InputEvent::ID::Down:
+			{
+				direction = 1;
+			}
+			break;
+
+			case InputEvent::ID::Left:
+			{
+				direction = 2;
+			}
+			break;
+
+			case InputEvent::ID::Right:
+			{
+				direction = 3;
+			}
+			break;
+		}
+	}
+
+	static const float velocity = 0.1f;
+
+	switch(direction)
+	{
+		default:
+		{
+			// Do nothing
+		}
+		break;
+
+		// Up
+		case 0:
+		{
+			position.y -= velocity;
+		}
+		break;
+
+		// Down
+		case 1:
+		{
+			position.y += velocity;
+		}
+		break;
+
+		// Left
+		case 2:
+		{
+			position.x -= velocity;
+		}
+		break;
+
+		// Right
+		case 3:
+		{
+			position.x += velocity;
+		}
+		break;
+	}
+
 	Quad quad;
-	quad.position = {};
+	quad.position = position;
 	quad.size = {100.0f, 100.0f};
 	Colour colour{255, 255, 255, 255};
 	platform->draw_quad(quad, colour);
