@@ -16,9 +16,15 @@ RSnake::RSnake(GameImport game_import) :
 
 void RSnake::init()
 {
-	x_pos = 0;
-	y_pos = 0;
-	tilemap[x_pos][y_pos] = Tile::Snake;
+	head = 0;
+	tail = 0;
+	body[head].x = 5;
+	body[head].y = 5;
+
+	tilemap[8][5] = Tile::Food;
+	tilemap[8][6] = Tile::Food;
+	tilemap[8][8] = Tile::Food;
+	tilemap[8][9] = Tile::Food;
 }
 
 void RSnake::update_input()
@@ -40,36 +46,68 @@ void RSnake::update_input()
 
 void RSnake::update_gameplay()
 {
-	tilemap[x_pos][y_pos] = Tile::Empty;
+	Position new_head = body[head];
 
 	// Move head
 	switch(heading)
 	{
 		default: break; // Do nothing
-		case Heading::Up:    y_pos -= 1; break;
-		case Heading::Down:  y_pos += 1; break;
-		case Heading::Left:  x_pos -= 1; break;
-		case Heading::Right: x_pos += 1; break;
+		case Heading::Up:    new_head.y -= 1; break;
+		case Heading::Down:  new_head.y += 1; break;
+		case Heading::Left:  new_head.x -= 1; break;
+		case Heading::Right: new_head.x += 1; break;
 	}
 
-	if(x_pos < 0)
+	// Handle edges
+	if(new_head.x < 0)
 	{
-		x_pos = tilemap.size() - 1;
+		new_head.x = tilemap.size() - 1;
 	}
-	else if(x_pos >= tilemap.size())
+	else if(new_head.x >= tilemap.size())
 	{
-		x_pos = 0;
+		new_head.x = 0;
 	}
-	if(y_pos < 0)
+	if(new_head.y < 0)
 	{
-		y_pos = tilemap[0].size() - 1;
+		new_head.y = tilemap[0].size() - 1;
 	}
-	else if(y_pos >= tilemap[0].size())
+	else if(new_head.y >= tilemap[0].size())
 	{
-		y_pos = 0;
+		new_head.y = 0;
 	}
 
-	tilemap[x_pos][y_pos] = Tile::Snake;
+	switch(tilemap[new_head.x][new_head.y])
+	{
+		case Tile::Empty:
+		{
+			Position pos          = new_head;
+			tilemap[pos.x][pos.y] = Tile::Snake;
+			head                  = (head + 1) % body.size();
+			body[head]            = new_head;
+
+			pos                   = body[tail];
+			tilemap[pos.x][pos.y] = Tile::Empty;
+			tail                  = (tail + 1) % body.size();
+		}
+		break;
+
+		case Tile::Food:
+		{
+			Position pos          = new_head;
+			tilemap[pos.x][pos.y] = Tile::Snake;
+			head                  = (head + 1) % body.size();
+			body[head]            = new_head;
+		}
+		break;
+
+		case Tile::Snake:
+		{
+			return;
+		}
+		break;
+	}
+
+	// Update tilemap
 }
 
 void RSnake::update_screen()

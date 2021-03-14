@@ -34,13 +34,19 @@ private:
 		Food
 	};
 
+	struct Position
+	{
+		int x;
+		int y;
+	};
+
 	constexpr static const Vec2 tile_size{30, 30};
-
-	Heading heading;
-	int x_pos;
-	int y_pos;
-
 	rcom::Array<Tile, 15, 17> tilemap = {};
+
+	Heading   heading;
+	size_t head;
+	size_t tail;
+	rcom::Array<Position, decltype(tilemap)::flat_size()> body;
 
 	void update_input();
 	void update_gameplay();
