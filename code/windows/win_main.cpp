@@ -181,6 +181,7 @@ int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR 
 		begin_rendering();
 		internal.game->update();
 		end_rendering();
+		Sleep(100);
 	}
 
 	// Never reach here

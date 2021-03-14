@@ -19,6 +19,30 @@ private:
 	rcom::Array<InputEvent, 64> input_events;
 	uint32_t                    num_events;
 
-	int direction;
-	Vec2 position;
+	enum class Heading
+	{
+		Up,
+		Down,
+		Left,
+		Right
+	};
+
+	enum class Tile
+	{
+		Empty = 0,
+		Snake,
+		Food
+	};
+
+	constexpr static const Vec2 tile_size{30, 30};
+
+	Heading heading;
+	int x_pos;
+	int y_pos;
+
+	rcom::Array<Tile, 15, 17> tilemap = {};
+
+	void update_input();
+	void update_gameplay();
+	void update_screen();
 };
