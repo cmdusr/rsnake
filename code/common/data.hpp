@@ -22,8 +22,11 @@ struct Quad
 	Vec2 size;
 };
 
-static const Colour black = {000, 000, 000, 255};
-static const Colour white = {255, 255, 255, 255};
-static const Colour red   = {255, 000, 000, 255};
-static const Colour green = {000, 255, 000, 255};
-static const Colour blue  = {000, 000, 255, 255};
+static const Colour black   = {000, 000, 000, 255};
+static const Colour white   = {255, 255, 255, 255};
+static const Colour red     = {255, 000, 000, 255};
+static const Colour green   = {000, 255, 000, 255};
+static const Colour blue    = {000, 000, 255, 255};
+static const Colour yellow  = {255, 255, 000, 255};
+static const Colour magenta = {255, 000, 255, 255};
+static const Colour cyan    = {000, 255, 255, 255};

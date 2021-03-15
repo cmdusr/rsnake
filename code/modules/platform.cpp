@@ -22,3 +22,8 @@ void I_Platform::draw_quad(Quad quad, Colour colour)
 {
 	return static_cast<Platform*>(this)->draw_quad(quad, colour);
 }
+
+void I_Platform::draw_text(const char* text, Vec2 pos, Colour colour)
+{
+	return static_cast<Platform*>(this)->draw_text(text, pos, colour);
+}

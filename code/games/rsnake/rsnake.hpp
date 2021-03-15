@@ -77,6 +77,7 @@ private:
 	Heading heading;
 	size_t  head;
 	size_t  tail;
+	int     score;
 
 	void reset();
 	void update_input();

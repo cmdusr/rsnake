@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <cstdio>
 
 I_Game* get_game_api(GameImport game_import)
 {
@@ -24,6 +25,8 @@ void RSnake::init()
 
 void RSnake::reset()
 {
+	score = 0;
+
 	for(size_t i = 0; i < array_size_1(tilemap); ++i)
 	{
 		for(size_t j = 0; j < array_size_2(tilemap); ++j)
@@ -211,6 +214,7 @@ void RSnake::update_gameplay()
 			// Don't remove / advance tail -> Grows snake by 1
 			
 			new_food();
+			score++;
 		}
 		break;
 
@@ -246,6 +250,10 @@ void RSnake::update_screen()
 			platform->draw_quad(quad, colour);
 		}
 	}
+
+	char buffer[128];
+	sprintf(buffer, "Score: %i\n", score);
+	platform->draw_text(buffer, {00.0f, 00.0f}, red);
 }
 
 void RSnake::update()

@@ -162,6 +162,22 @@ void Windows::Platform::draw_quad(Quad quad, Colour colour)
 	DeleteObject(hBrush);
 }
 
+void Windows::Platform::draw_text(const char* text, Vec2 pos, Colour colour)
+{
+	const HDC hDC   = internal.hDC;
+	const HWND hWnd = internal.hWnd;
+
+	SetTextColor(hDC, RGB(colour.r, colour.g, colour.b));
+	SetBkMode(hDC, TRANSPARENT);
+
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	rect.left = pos.x;
+	rect.top  = pos.y;
+
+	DrawText(hDC, text, -1, &rect, DT_SINGLELINE | DT_NOCLIP);
+}
+
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	internal.hInstance = hInstance;
