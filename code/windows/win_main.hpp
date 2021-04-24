@@ -18,6 +18,8 @@ namespace Windows
 		PLATFORM_API void error(const char* fmt, ...);
 		PLATFORM_API void draw_quad(Quad, Colour);
 		PLATFORM_API void draw_text(const char* text, Vec2 pos, Colour colour);
+
+		void recompile_game_dll();
 	private:
 		Internal internal;
 		Window   window;

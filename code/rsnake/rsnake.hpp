@@ -2,38 +2,9 @@
 
 #include "../modules/game.hpp"
 #include "../common/data.hpp"
+#include "../rcom/array.hpp"
 
 I_Game* get_game_api(GameImport);
-
-template<typename T, size_t N> constexpr size_t array_size(const T(&)[N])
-{
-	return N;
-}
-
-template<typename T, size_t N1, size_t N2> constexpr size_t flat_size(const T(&)[N1][N2])
-{
-	return N1 * N2;
-}
-
-template<typename T, size_t N1, size_t N2> constexpr size_t array_size_1(const T(&)[N1][N2])
-{
-	return N1;
-}
-
-template<typename T, size_t N1, size_t N2> constexpr size_t array_size_2(const T(&)[N1][N2])
-{
-	return N2;
-}
-
-template<typename T, size_t N> constexpr size_t byte_size(const T(&t)[N])
-{
-	return sizeof(T) * array_size(t);
-}
-
-template<typename T, size_t N1, size_t N2> constexpr size_t byte_size(const T(&t)[N1][N2])
-{
-	return sizeof(T) * array_size(t);
-}
 
 class RSnake : public I_Game
 {
@@ -45,7 +16,8 @@ public:
 	GAME_API void inform(InputEvent);
 private:
 	I_Platform* platform;
-	InputEvent  input_events[64];
+
+	rcom::Array<InputEvent, 64> input_events;
 	uint32_t    num_events;
 
 	enum class Heading
@@ -71,13 +43,13 @@ private:
 
 	constexpr static const Vec2 tile_size{30, 30};
 
-	Tile tilemap[17][15];
+	rcom::Array<Tile, 17, 15> tilemap;
 
-	Position body[sizeof(tilemap) / sizeof(Tile)];
-	Heading heading;
-	size_t  head;
-	size_t  tail;
-	int     score;
+	rcom::Array<Position, decltype(tilemap)::flat_size()> body;
+	Heading  heading;
+	size_t   head;
+	size_t   tail;
+	int      score;
 
 	void reset();
 	void update_input();

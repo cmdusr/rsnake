@@ -1,6 +1,7 @@
 #include "win_window.hpp"
 #include "win_internal.hpp"
 #include "../modules/platform.hpp"
+#include "win_main.hpp"
 
 Windows::Window::Window(Internal& in_internal) : Submodule{in_internal}
 {
@@ -113,6 +114,12 @@ void Windows::Window::handle_key_event(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		case VK_ESCAPE:
 		{
 			internal->platform->quit();
+		}
+		break;
+
+		case VK_F5:
+		{
+			static_cast<Windows::Platform*>(internal->platform)->recompile_game_dll();
 		}
 		break;
 

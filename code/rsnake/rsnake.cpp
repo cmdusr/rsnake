@@ -27,9 +27,9 @@ void RSnake::reset()
 {
 	score = 0;
 
-	for(size_t i = 0; i < array_size_1(tilemap); ++i)
+	for(size_t i = 0; i < tilemap.size<0>(); ++i)
 	{
-		for(size_t j = 0; j < array_size_2(tilemap); ++j)
+		for(size_t j = 0; j < tilemap.size<1>(); ++j)
 		{
 			tilemap[i][j] = Tile::Empty;
 		}
@@ -64,13 +64,13 @@ void RSnake::reset()
 
 void RSnake::new_food()
 {
-	size_t r = rand() % flat_size(tilemap);
+	size_t r = rand() % tilemap.flat_size();
 	Position pos;
 	do
 	{
-		pos.x = r % array_size_1(tilemap);
-		pos.y = r / array_size_2(tilemap);
-		r = (r + 1) % flat_size(tilemap);
+		pos.x = r % tilemap.size<0>();
+		pos.y = r / tilemap.size<1>();
+		r = (r + 1) % tilemap.flat_size();
 	}
 	while(tilemap[pos.x][pos.y] != Tile::Empty);
 
@@ -122,7 +122,7 @@ void RSnake::update_input()
 		}
 	}
 
-	memset(input_events, 0, byte_size(input_events));
+	rcom::set_memory(input_events.to_bytes());
 	num_events = 0;
 }
 
@@ -140,14 +140,14 @@ void RSnake::update_gameplay()
 		case Heading::Right: new_head.x += 1; break;
 	}
 
-#if 0
+#if 1
 	// Handle edges
 	if(new_head.x < 0)
 	{
 		reset();
 		return;
 	}
-	else if(new_head.x >= array_size_1(tilemap))
+	else if(new_head.x >= tilemap.size<0>())
 	{
 		reset();
 		return;
@@ -157,7 +157,7 @@ void RSnake::update_gameplay()
 		reset();
 		return;
 	}
-	else if(new_head.y >= array_size_2(tilemap))
+	else if(new_head.y >= tilemap.size<1>())
 	{
 		reset();
 		return;
@@ -166,17 +166,17 @@ void RSnake::update_gameplay()
 	// Handle edges
 	if(new_head.x < 0)
 	{
-		new_head.x = array_size_1(tilemap) - 1;
+		new_head.x = tilemap.size<0>() - 1;
 	}
-	else if(new_head.x >= array_size_1(tilemap))
+	else if(new_head.x >= tilemap.size<0>())
 	{
 		new_head.x = 0;
 	}
 	if(new_head.y < 0)
 	{
-		new_head.y = array_size_2(tilemap) - 1;
+		new_head.y = tilemap.size<1>() - 1;
 	}
-	else if(new_head.y >= array_size_2(tilemap))
+	else if(new_head.y >= tilemap.size<1>())
 	{
 		new_head.y = 0;
 	}
@@ -187,7 +187,7 @@ void RSnake::update_gameplay()
 		case Tile::Empty:
 		{
 			// Advance head in the queue
-			head       = (head + 1) % array_size(body);
+			head       = (head + 1) % body.size();
 			body[head] = new_head;
 
 			// New head tile is part of the snake
@@ -198,14 +198,14 @@ void RSnake::update_gameplay()
 			tilemap[tail_pos.x][tail_pos.y] = Tile::Empty;
 
 			// Advance tail in the queue
-			tail = (tail + 1) % array_size(body);
+			tail = (tail + 1) % body.size();
 		}
 		break;
 
 		case Tile::Food:
 		{
 			// Advance head in the queue
-			head       = (head + 1) % array_size(body);
+			head       = (head + 1) % body.size();
 			body[head] = new_head;
 
 			// New head tile is part of the snake
@@ -232,9 +232,9 @@ void RSnake::update_screen()
 	Quad   quad{};
 	Colour colour{};
 
-	for(size_t i = 0; i < array_size_1(tilemap); ++i)
+	for(size_t i = 0; i < tilemap.size<0>(); ++i)
 	{
-		for(size_t j = 0; j < array_size_2(tilemap); ++j)
+		for(size_t j = 0; j < tilemap.size<1>(); ++j)
 		{
 			quad.position = {i * tile_size.x, j * tile_size.y};
 			quad.size     = tile_size;

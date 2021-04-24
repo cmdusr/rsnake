@@ -194,6 +194,11 @@ void Windows::Platform::draw_text(const char* text, Vec2 pos, Colour colour)
 	DrawText(hDC, text, -1, &rect, DT_SINGLELINE | DT_NOCLIP);
 }
 
+void Windows::Platform::recompile_game_dll()
+{
+	ShellExecuteA(internal.hWnd, "open", "build.bat", nullptr, "..\\", 0);
+}
+
 int Windows::Platform::main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	internal.hInstance = hInstance;
